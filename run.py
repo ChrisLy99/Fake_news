@@ -1,6 +1,5 @@
 import sys
 import os
-import subprocess
 
 sys.path.insert(0, 'src')
 
@@ -17,9 +16,8 @@ def main(targets):
         
     """
     if 'data' in targets:
-        # config file should be in root of the repository
-        config = load_config("./config/config.yaml")
-        get_data_date(**config)
+        config = load_config("config/data_params.yaml")
+        data = get_data_date(**config)
     
 
 if __name__ == '__main__':
