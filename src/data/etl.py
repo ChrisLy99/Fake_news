@@ -1,53 +1,91 @@
-import yaml
 import os
 import subprocess
 import numpy as np
+import yaml
+import json
+# import pandas as pd
 
-def get_data_date(date, outdir, clean=False, N=None):
-    """Retrieves data for the given day from the internet and places it in src/data.
+# TODO: add twarc authentification
 
+def get_data_date(date, outdir, clean=False, N=500):
+    """Retrieves N tweets for the given day.
+    
+    Retrieves N tweets from existing file. If it doesn't exist then sample
+    N tweets from file containing all tweet IDs for the given day. And if
+    that file also doesn't exist, fetch it from the github and create them.
+       
     Args:
-        date (str): format YYYY-MM-DD
-        outdir (str): data directory path
-        clean (bool): specifies whether to download the cleaned data (without retweets) or the raw data
+        date (str): date of data. Format YYYY-MM-DD.
+        outdir (str): data directory path.
+        clean (bool): specifies whether to download the cleaned data 
+          (without retweets) or the raw data.
+        N (int): number of tweets to hydrate, if None hydrate all.
         
-    Todo:
-        Retrieve data if it exists else download it
+    Returns:
+        A list containing N tweet json objects.
         
     """
-#     try:
-#         # read in data e.g.
-#         np.genfromtxt('data/2020-10-02/tweet_ids.txt', dtype=np.int64)
-#     except:
-    if clean:
-        file_name = date + '_clean-dataset.tsv.gz'
-    else:
-        file_name = date + '-dataset.tsv.gz'
+    file_txt_path = os.path.join(outdir, date) + f'_{N}_ids.txt'     # ./data/raw/2020-03-27_500_ids.txt
+    file_jsonl_path = os.path.splitext(file_txt_path)[0] + '.jsonl'  # replace ".txt" from the file path with ".jsonl"
+    
+    try:
+        return read_jsonl(file_jsonl_path)
+    except FileNotFoundError:  # jsonl file doesn't exist for N sample
+        pass
+    try:
+        # read in full data to sample from
+        full_data_path = os.path.join(outdir, date) + '_all_ids.txt' # ./data/raw/2020-03-27_all_ids.txt
+        twitter_ids = np.genfromtxt(full_data_path, dtype=np.int64)  
         
-    data_url_base_path = 'https://raw.githubusercontent.com/thepanacealab/covid19_twitter/master/dailies/' + date
-    
-    # https://raw.githubusercontent.com/thepanacealab/covid19_twitter/master/dailies/2020-03-27/2020-03-27-dataset.tsv.gz
-    file_url = os.path.join(data_url_base_path, file_name)
-    file_path = os.path.join(outdir, file_name) # ./data/raw/2020-03-27-dataset.tsv.gz
-    file_tsv_path = os.path.splitext(file_path)[0] # removes ".gz" from the file path
-    file_txt_path = os.path.splitext(file_tsv_path)[0] + '.txt' # replace ".tsv" from the file path with ".txt"
-    file_jsonl_path = os.path.splitext(file_tsv_path)[0] + '.jsonl' # replace ".tsv" from the file path with ".jsonl"
-    
-    curl_command = "curl " + file_url + " --output " + file_path
-    
-    subprocess.run(curl_command, shell=True)
-    subprocess.run("gunzip " + file_path, shell=True)
-    
-    twitter_ids = np.genfromtxt(file_tsv_path, dtype=np.int64, skip_header=1, usecols=(0,))
-    np.savetxt(file_txt_path, twitter_ids, fmt='%i')
-    # so now src/data should have a tsv file and a txt file for the data on the given date
+        sample_idx = np.random.uniform(high=len(twitter_ids), size=N).astype(np.int64)
+        sample = twitter_ids[sample_idx]
+        np.savetxt(file_txt_path, sample, fmt='%i')
+        
+        hydrate_ids(file_txt_path, file_jsonl_path)
+        return read_jsonl(file_jsonl_path)
+    except:  # full data doesn't exist
+        if clean:
+            file_name = date + '_clean-dataset.tsv.gz'
+        else:
+            file_name = date + '-dataset.tsv.gz'
 
-    # hydration of tweet ids
-    hydrate_command = "twarc hydrate " + file_txt_path + " > " + file_jsnol_path
+        url_base = 'https://raw.githubusercontent.com/thepanacealab/covid19_twitter/master/dailies/' + date
+
+        # https://raw.githubusercontent.com/thepanacealab/covid19_twitter/master/dailies/2020-03-27/2020-03-27-dataset.tsv.gz
+        url = os.path.join(url_base, file_name)
+        gz_path = os.path.join(outdir, file_name) # ./data/raw/2020-03-27-dataset.tsv.gz
+        
+        curl_command = "curl " + url + " --output " + gz_path
+
+        subprocess.run(curl_command, shell=True)
+        # subprocess.run("gunzip " + gz_path, shell=True)
+        
+        # np.genfromtxt decompresses .gz by default
+        twitter_ids = np.genfromtxt(gz_path, dtype=np.int64, skip_header=1, usecols=(0,))
+        np.savetxt(full_data_path, twitter_ids, fmt='%i')
+        
+        os.remove(gz_path)
+
+        sample_idx = np.random.uniform(high=len(twitter_ids), size=N).astype(np.int64)
+        sample = twitter_ids[sample_idx]
+        np.savetxt(file_txt_path, sample, fmt='%i')
+        
+        hydrate_ids(file_txt_path, file_jsonl_path)
+        return read_jsonl(file_jsonl_path)
+
+def read_jsonl(jsonl_path):
+    """Returns a list of tweet json objects."""
+    data = []
+    with open(jsonl_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            data.append(json.loads(line))
+    return data
+                
+def hydrate_ids(txt_path, jsonl_path):
+    """Hydrate the tweet IDs in txt_path using twarc"""
+    hydrate_command = "twarc hydrate " + txt_path + " > " + jsonl_path
     subprocess.run(hydrate_command, shell=True)
 
 def load_config(path):
-    """
-    Load the configuration from config.yaml.
-    """
+    """Load the configuration from config.yaml."""
     return yaml.load(open(path, 'r'), Loader=yaml.SafeLoader)
