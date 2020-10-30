@@ -50,15 +50,12 @@ def get_data_date(date, outdir, clean=False, N=500):
             file_name = date + '-dataset.tsv.gz'
 
         url_base = 'https://raw.githubusercontent.com/thepanacealab/covid19_twitter/master/dailies/' + date
-
         # https://raw.githubusercontent.com/thepanacealab/covid19_twitter/master/dailies/2020-03-27/2020-03-27-dataset.tsv.gz
         url = os.path.join(url_base, file_name)
         gz_path = os.path.join(outdir, file_name) # ./data/raw/2020-03-27-dataset.tsv.gz
         
         curl_command = "curl " + url + " --output " + gz_path
-
         subprocess.run(curl_command, shell=True)
-        # subprocess.run("gunzip " + gz_path, shell=True)
         
         # np.genfromtxt decompresses .gz by default
         twitter_ids = np.genfromtxt(gz_path, dtype=np.int64, skip_header=1, usecols=(0,))
@@ -82,10 +79,10 @@ def read_jsonl(jsonl_path):
     return data
                 
 def hydrate_ids(txt_path, jsonl_path):
-    """Hydrate the tweet IDs in txt_path using twarc"""
+    """Retrieves tweets given IDs in txt_path using twarc"""
     hydrate_command = "twarc hydrate " + txt_path + " > " + jsonl_path
     subprocess.run(hydrate_command, shell=True)
 
 def load_config(path):
-    """Load the configuration from config.yaml."""
+    """Load the configuration from config."""
     return yaml.load(open(path, 'r'), Loader=yaml.SafeLoader)
