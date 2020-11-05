@@ -3,7 +3,7 @@ import os
 
 sys.path.insert(0, 'src')
 
-from data.etl import load_config, get_data_date
+from data.etl import load_config, get_data_range_p, hydrate_data_range
 
 
 def main(targets):
@@ -17,7 +17,8 @@ def main(targets):
     """
     if 'data' in targets:
         config = load_config("config/data_params.yaml")
-        data = get_data_date(**config)
+        get_data_range_p(**config)
+        hydrate_data_range(**config)
     
 
 if __name__ == '__main__':
