@@ -15,7 +15,7 @@ def main(targets):
         basically the whole project
         
     """
-    if 'data' in targets:
+    if 'data' and 'model' in targets:
         config = load_config("config/data_params.yaml")
         get_data_range_p(**config)
         hydrate_data_range(**config)
