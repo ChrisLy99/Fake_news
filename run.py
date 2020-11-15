@@ -6,6 +6,7 @@ sys.path.insert(0, 'src')
 import env_setup
 from etl import get_data
 from utils import load_config, convert_notebook
+from eda import generate_stats
 from dataset import Tweet_Dataset # TODO change Tweet_Dataset params
 
 
@@ -42,9 +43,7 @@ def main(targets):
         except NameError:
             data = Tweet_Dataset(config_path, data_folder)
 
-#         Tweet_Dataset(config_path, data_folder)
-        
-#         generate_stats(data, **config)
+        generate_stats(data, **config)
         
         # execute notebook / convert to html
         convert_notebook(**config)
