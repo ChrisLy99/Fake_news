@@ -1,0 +1,7 @@
+{
+    "config": ["config/data_params.yaml", "config/model_config.yaml"],
+    "build": "run.py",
+    "library": ["src"],
+    "notebook": ["src/data/initial_interaction.ipynb"],
+    "targets": ["data", "model"]
+}
