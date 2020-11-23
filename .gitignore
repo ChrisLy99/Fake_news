@@ -71,6 +71,10 @@ Scratchpad.ipynb
 # Data
 *.txt
 *.jsonl
+data/report/*
+
+# Reports
+report
 
 # IPython
 profile_default/

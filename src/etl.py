@@ -5,9 +5,35 @@ import numpy as np
 import yaml
 import json
 from datetime import timedelta, date
-# import pandas as pd
+from utils import load_config
+
 
 # TODO: add twarc authentification
+
+def get_data(start_date, end_date, outdir, clean=False, p=360):
+    """Downloads tweets for the days between start and end dates.
+    
+    Dates range from start_date inclusive to end_date exclusive. Attempts
+    downloading data if data file doesn't already exist.
+       
+    Args:
+        start_date (str): start of data range. Format YYYY-MM-DD.
+        end_date (str): end of data range. Format YYYY-MM-DD.
+        outdir (str): data directory path.
+        clean (bool): specifies whether to download the cleaned data 
+          (without retweets) or the raw data.
+        
+    """
+    parent_dir = os.path.dirname(outdir)
+    file_txt_path = os.path.join(parent_dir, 'temp', start_date) + f'_{end_date}_ids.txt'  # ./data/temp/2020-03-27_2020-03-30_ids.txt
+    file_jsonl_path = os.path.splitext(file_txt_path)[0] + '.jsonl'
+    
+    if os.path.isfile(file_jsonl_path):
+        pass
+    else:
+        get_data_range_p(start_date, end_date, outdir, clean)
+        hydrate_data_range(start_date, end_date, outdir, clean)
+    return
 
 def get_data_range_p(start_date, end_date, outdir, clean=False, p=360):
     """Downloads tweets for the days between start and end dates.
@@ -184,9 +210,9 @@ def hydrate_ids(txt_path, jsonl_path):
     hydrate_command = "twarc hydrate " + txt_path + " > " + jsonl_path
     subprocess.run(hydrate_command, shell=True)
 
-def load_config(path):
-    """Load the configuration from config."""
-    return yaml.load(open(path, 'r'), Loader=yaml.SafeLoader)
+# def load_config(path):
+#     """Load the configuration from config."""
+#     return yaml.load(open(path, 'r'), Loader=yaml.SafeLoader)
 
 def daterange(start, end):
     """Generator for dates between start and end dates.

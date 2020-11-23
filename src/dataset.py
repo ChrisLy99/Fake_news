@@ -12,7 +12,7 @@ class Tweet_Dataset:
         self.start_date = self.config['start_date']
         self.end_date = self.config['end_date']
         data_file = self.start_date + '_' + self.end_date + '_ids.jsonl'
-        self.jsonl_path = data_folder + data_file
+        self.jsonl_path = data_folder + "/" + data_file
         
         # helper function to get the hashtags in a given tweet
         self.get_hashtags = lambda twt: [elem['text'] for elem in twt['entities']['hashtags']]
