@@ -28,12 +28,12 @@ def main(targets):
     else:
         os.symlink(**env) # data_path -> "data/temp/2020-03-22_2020-08-01_ids.jsonl"
         
-    config_path, data_folder = "config/data_params.yaml", "data/temp"
+#     config_path, data_folder = "config/data_params.yaml", "data/temp"
     
-    if 'data' and 'model' in targets:
+    if 'data' in targets:
         config = load_config("config/data_params.yaml")
-        get_data(**config)
-        data = Tweet_Dataset(config_path, data_folder)
+        fp = get_data(**config)
+        data = Tweet_Dataset(fp)
         
     if 'eda' in targets:
         config = load_config('config/eda_params.yaml')
@@ -41,13 +41,19 @@ def main(targets):
         try:
             data
         except NameError:
-            data = Tweet_Dataset(config_path, data_folder)
+            data = Tweet_Dataset("data/temp/2020-03-22_2020-08-01_ids.jsonl")
 
         generate_stats(data, **config)
         
         # execute notebook / convert to html
         convert_notebook(**config)
     
+    if 'test' in targets:
+        config = load_config("config/test.yaml")
+        data = Tweet_Dataset(**config['data'])
+        
+        generate_stats(data, **config['eda'])
+        convert_notebook(**config['eda'])
 
 if __name__ == '__main__':
     targets = sys.argv[1:]

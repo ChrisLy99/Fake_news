@@ -1,0 +1,7 @@
+--- 
+data: 
+  filepath: "test/testdata/test.jsonl"
+eda: 
+  outdir: "test/testreport"
+  report_in_path: "test/report.ipynb"
+  report_out_path: "test/report.html"
