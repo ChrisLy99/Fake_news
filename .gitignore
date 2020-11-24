@@ -76,6 +76,10 @@ data/report/*
 # Reports
 report
 
+# Test
+report.html
+test
+
 # IPython
 profile_default/
 ipython_config.py

@@ -2,10 +2,8 @@ import os
 import subprocess
 import numpy as np
 
-import yaml
 import json
-from datetime import timedelta, date
-from utils import load_config
+from datetime import timedelta
 
 
 # TODO: add twarc authentification
@@ -33,7 +31,7 @@ def get_data(start_date, end_date, outdir, clean=False, p=360):
     else:
         get_data_range_p(start_date, end_date, outdir, clean)
         hydrate_data_range(start_date, end_date, outdir, clean)
-    return
+    return file_jsonl_path
 
 def get_data_range_p(start_date, end_date, outdir, clean=False, p=360):
     """Downloads tweets for the days between start and end dates.
@@ -209,10 +207,6 @@ def hydrate_ids(txt_path, jsonl_path):
     """Retrieves tweets given IDs in txt_path using twarc"""
     hydrate_command = "twarc hydrate " + txt_path + " > " + jsonl_path
     subprocess.run(hydrate_command, shell=True)
-
-# def load_config(path):
-#     """Load the configuration from config."""
-#     return yaml.load(open(path, 'r'), Loader=yaml.SafeLoader)
 
 def daterange(start, end):
     """Generator for dates between start and end dates.
