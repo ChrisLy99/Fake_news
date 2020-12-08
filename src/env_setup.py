@@ -1,21 +1,23 @@
 import os
-# import json
+import utils
 
 
 basedir = os.path.dirname(__file__)
-# cred_fp = os.path.join(basedir, '..', '.env', 'kaggle.json')
+cred_fp = os.path.join(basedir, '..', '.env', 'tweepy.yaml')
 
 
-# def auth():
-#     '''
-#     set-up secrets for authentication to kaggle
-#     '''
-#     creds = json.load(open(cred_fp))
+def auth():
+    '''
+    set-up secrets for authentication to tweepy
+    '''
+    creds = load_config(cred_fp)
+    
+    os.environ['consumer_key'] = creds['consumer_key']
+    os.environ['consumer_secret'] = creds['consumer_secret']
+    os.environ['access_token'] = creds['access_token']
+    os.environ['access_token_secret'] = creds['access_token_secret']
 
-#     os.environ['KAGGLE_KEY'] = creds.get('key')
-#     os.environ['KAGGLE_USERNAME'] = creds.get('username')
-
-#     return
+    return
 
 def make_datadir():
 
