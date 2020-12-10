@@ -67,6 +67,7 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 Scratchpad.ipynb
+Checkpoints.ipynb
 
 # Data
 *.txt
