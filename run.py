@@ -59,6 +59,11 @@ def main(targets):
         data = Tweet_Dataset(**config['data'])
         
         generate_stats(data, **config['eda'])
+        ht_polarity, base_hts = data.hashtag_polarity()
+        for tid,path in config['eda']["tids"]:
+            tmp_data = Tweet_Dataset(path)
+            generate_polarity(tmp_data, ht_polarity, base_hts, **config['eda'])
+            
         convert_notebook(**config['eda'])
 
 if __name__ == '__main__':
