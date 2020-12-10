@@ -4,9 +4,14 @@ from nbconvert import HTMLExporter
 import yaml
 
 
+def get_project_root():
+    """Return the root path for the project."""
+    curdir = os.path.dirname(os.path.abspath(__file__))
+    return os.path.normpath(os.path.join(curdir, os.pardir))
+
 def load_config(path):
     """Load the configuration from config."""
-    return yaml.load(open(path, 'r'), Loader=yaml.SafeLoader)
+    return yaml.load(open(path, 'r'), Loader=yaml.Loader)
 
 def convert_notebook(report_in_path, report_out_path, **kwargs):
 

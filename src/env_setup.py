@@ -1,15 +1,12 @@
 import os
-import utils
+from utils import load_config, get_project_root
 
 
-basedir = os.path.dirname(__file__)
-cred_fp = os.path.join(basedir, '..', '.env', 'tweepy.yaml')
-
+root = get_project_root()
+cred_fp = os.path.join(root, '.env', 'twarc.yaml')
 
 def auth():
-    '''
-    set-up secrets for authentication to tweepy
-    '''
+    """Set-up secrets for authentication to tweepy."""
     creds = load_config(cred_fp)
     
     os.environ['consumer_key'] = creds['consumer_key']
@@ -20,10 +17,11 @@ def auth():
     return
 
 def make_datadir():
+    """Set-up data directories."""
 
-    data_loc = os.path.join(basedir, '..', 'data')
+    data_loc = os.path.join(root, 'data')
 
-    for d in ['raw', 'temp', 'out']:
+    for d in ['raw', 'processed', 'report', 'tweets']:
         os.makedirs(os.path.join(data_loc, d), exist_ok=True)
 
     return
