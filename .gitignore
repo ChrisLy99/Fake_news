@@ -70,6 +70,7 @@ Scratchpad.ipynb
 Checkpoints.ipynb
 
 # Data
+twarc.log
 *.txt
 *.jsonl
 data/report/*
