@@ -1,27 +1,27 @@
 import os
-# import json
+from utils import load_config, get_project_root
 
 
-basedir = os.path.dirname(__file__)
-# cred_fp = os.path.join(basedir, '..', '.env', 'kaggle.json')
+root = get_project_root()
+cred_fp = os.path.join(root, '.env', 'twarc.yaml')
 
+def auth():
+    """Set-up secrets for authentication to tweepy."""
+    creds = load_config(cred_fp)
+    
+    os.environ['consumer_key'] = creds['consumer_key']
+    os.environ['consumer_secret'] = creds['consumer_secret']
+    os.environ['access_token'] = creds['access_token']
+    os.environ['access_token_secret'] = creds['access_token_secret']
 
-# def auth():
-#     '''
-#     set-up secrets for authentication to kaggle
-#     '''
-#     creds = json.load(open(cred_fp))
-
-#     os.environ['KAGGLE_KEY'] = creds.get('key')
-#     os.environ['KAGGLE_USERNAME'] = creds.get('username')
-
-#     return
+    return
 
 def make_datadir():
+    """Set-up data directories."""
 
-    data_loc = os.path.join(basedir, '..', 'data')
+    data_loc = os.path.join(root, 'data')
 
-    for d in ['raw', 'temp', 'out']:
+    for d in ['raw', 'processed', 'report', 'tweets']:
         os.makedirs(os.path.join(data_loc, d), exist_ok=True)
 
     return

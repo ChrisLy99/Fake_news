@@ -2,12 +2,9 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
-# import warnings
-# from datetime import datetime, timedelta #refactor
-# warnings.filterwarnings('ignore')
 
-# sys.path.insert(0,"../src")
-# from dataset import Tweet_Dataset
+
+from etl import extract_users, download_retweets
 
 
 def data_point(data, outdir):
@@ -52,7 +49,7 @@ def top_10_users(data, outdir):
 def hashtag_time(data, outdir):
     daily_tag_occurrences = data.get_daily_tag_counts()
     
-    for hashtag in ['Covid19', 'WearAMask', 'SocialDistancing', 'FakeNews', 'Hoax', 'ChinaVirus']:
+    for hashtag in ['covid19', 'wearamask', 'socialdistancing', 'wuhanvirus', 'fakenews', 'maga']:
         count = daily_tag_occurrences[hashtag]
         plot_hashtag_use(outdir, count, hashtag)
     
@@ -67,6 +64,71 @@ def plot_hashtag_use(outdir, counts, hashtag):
     plt.savefig(os.path.join(outdir, f'{hashtag}.png'))
     plt.clf()
 
+# # uses tweepy, old code
+# def echo_chambers(data, outdir):
+#     ht_polarity, base_hts = data.hashtag_polarity()
+    
+#     for tid in [1241517991843581953, 1241430375496212481]:
+#         user_polarities = self.echo_tweet(tid, ht_polarity, base_hts)
+#         plot_echo_chambers(outdir, tid, polarity)
+        
+# def plot_echo_chambers(outdir, tid, polarity):
+#     clean = [pol for pol in polarity if pol!=0]
+    
+#     plt.figure()
+#     plt.suptitle(f'Distribution of user polarities retweeting #{tid} (tweet id)')
+#     plt.hist(clean)
+#     plt.tight_layout()
+#     plt.savefig(os.path.join(outdir, f'{tid}.png'))
+#     plt.clf()
+
+def echo_chamber(data, outdir, ht_polarity, base_hts):
+    users = extract_users(None, data.data_)
+    polarities = []
+    polarities_n = []
+    for user in users:
+        pol, pol_norm = user.user_pol(ht_polarity, base_hts)
+        if pol != 0:
+            polarities.append(pol)
+        if pol_norm != 0:
+            polarities_n.append(pol_norm)
+    base = os.path.splitext(os.path.basename(data.data_))[0]
+    path = os.path.join(outdir, base)
+    np.savetxt(f'{path}.txt', np.array(polarities))
+    np.savetxt(f'{path}_norm.txt', np.array(polarities_n))
+    
+    plot_echo_chambers(outdir, polarities, base)
+    plot_echo_chambers(outdir, polarities_n, base, True)
+    
+def plot_echo_chambers(outdir, pol, base, norm=False):
+    
+    plt.figure()
+    title = f'Distribution of user polarities from {base} retweets'
+    title = f'{title} (normalized)' if norm else title
+    plt.suptitle(title)
+    plt.hist(pol)
+    plt.xlabel("User polarity")
+    plt.ylabel("Number of users")
+    plt.tight_layout()
+    path = f'{base}_norm.png' if norm else f'{base}.png'
+    plt.savefig(os.path.join(outdir, path))
+    plt.clf()
+    
+# def user_pol(user_data):
+#     ht_used = []
+#     num_contain = 0
+#     for tweet in user_data.tweets_period():
+#         hts = user_data.get_lower_hashtags()
+#         ht_used += hts
+#         if not set(hts).isdisjoint(set(base_ht)):
+#             num_contain += 1
+
+#     tot = 0
+#     for ht in list(set(ht_used).intersection(set(base_ht))):
+#         tot += ht_polarity.get(ht)
+#     out = 0 if num_contain == 0 else tot / num_contain
+#     return tot, out
+
 def generate_stats(data, outdir, **kwargs):
     
     os.makedirs(outdir, exist_ok=True)
@@ -74,5 +136,13 @@ def generate_stats(data, outdir, **kwargs):
     top_10_hashtags(data, outdir)
     top_10_users(data, outdir)
     hashtag_time(data, outdir)
+#     echo_chamber(data, outdir)
+    
+    return
+    
+def generate_polarity(data, ht_polarity, base_hts, outdir, **kwargs):
+    
+    os.makedirs(outdir, exist_ok=True)
+    echo_chamber(data, outdir, ht_polarity, base_hts)
     
     return

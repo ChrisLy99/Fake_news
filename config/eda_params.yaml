@@ -1,3 +1,6 @@
 outdir: "data/report"
 report_in_path: "notebooks/report.ipynb"
 report_out_path: "report/report.html"
+tids: 
+- !!python/tuple [1241517991843581953, "data/tweets/scientific.jsonl"]
+- !!python/tuple [1241430375496212481, "data/tweets/misinformation.jsonl"]
