@@ -21,11 +21,12 @@ def main(targets):
     env_setup.make_datadir()
     
     # set up symbolic link to data on dsmlp
-    env = load_config("config/env_dsmlp.yaml")
-    if os.path.exists(env["dst"]):
-        pass
-    else:
-        os.symlink(**env) # data_path -> "data/temp/2020-03-22_2020-08-01_ids.jsonl"
+    if 'setup-dsmlp' in targets:
+        env = load_config("config/env_dsmlp.yaml")
+        if os.path.exists(env["dst"]):
+            pass
+        else:
+            os.symlink(**env) # data_path -> "data/temp/2020-03-22_2020-08-01_ids.jsonl"
     
     if 'all' in targets:
         targets = ['data', 'eda']
