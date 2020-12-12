@@ -119,12 +119,12 @@ def hydrate_ids(txt_path, jsonl_path):
     hydrate_cmd = f'twarc hydrate {txt_path} > {jsonl_path}'
     subprocess.run(hydrate_cmd, shell=True)
 
-def extract_users(tid, jsonl_path):
+def extract_users(tid, jsonl_path, test=False):
     """Returns list of users."""
     if not os.path.isfile(jsonl_path):
         download_retweets(tid, jsonl_path)
     data = Tweet_Dataset(jsonl_path)
-    users = [Tweet_Dataset(get_user_data(rt)) for rt in data.tweets()]
+    users = [Tweet_Dataset(get_user_data(rt, test)) for rt in data.tweets()]
     
     return users
     
@@ -134,11 +134,12 @@ def download_retweets(tid, jsonl_path):
         rt_cmd = f'twarc retweets {tid} > {jsonl_path}'
         subprocess.run(rt_cmd, shell=True)
     
-def get_user_data(rt):
+def get_user_data(rt, test=False):
     """Retrieves user timeline data given retweet using twarc."""
     sname = rt['user']['screen_name']
     jsonl_path = os.path.join(root, 'data/tweets', f'{sname}.jsonl')
-
+    if test:
+        jsonl_path = os.path.join(root, 'test/testdata', f'{sname}.jsonl')
     if not os.path.isfile(jsonl_path):
         # e.g. twarc timeline realDonaldTrump > realDonaldTrump.jsonl
         cmd = f'twarc timeline {sname} > {jsonl_path}'
