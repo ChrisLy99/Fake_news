@@ -82,8 +82,8 @@ def plot_hashtag_use(outdir, counts, hashtag):
 #     plt.savefig(os.path.join(outdir, f'{tid}.png'))
 #     plt.clf()
 
-def echo_chamber(data, outdir, ht_polarity, base_hts):
-    users = extract_users(None, data.data_)
+def echo_chamber(data, outdir, ht_polarity, base_hts, test=False):
+    users = extract_users(None, data.data_, test)
     polarities = []
     polarities_n = []
     for user in users:
@@ -140,9 +140,9 @@ def generate_stats(data, outdir, **kwargs):
     
     return
     
-def generate_polarity(data, ht_polarity, base_hts, outdir, **kwargs):
+def generate_polarity(data, ht_polarity, base_hts, outdir, test, **kwargs):
     
     os.makedirs(outdir, exist_ok=True)
-    echo_chamber(data, outdir, ht_polarity, base_hts)
+    echo_chamber(data, outdir, ht_polarity, base_hts, test)
     
     return
